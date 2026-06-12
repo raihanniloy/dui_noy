@@ -26,7 +26,7 @@ export interface GameState {
   readonly seed: number;
   readonly handNo: number;
   readonly dealer: Seat;
-  readonly hands: readonly [Card[], Card[], Card[], Card[]];
+  readonly hands: readonly [readonly Card[], readonly Card[], readonly Card[], readonly Card[]];
   readonly stock: readonly Card[]; // second 4-card batches, dealt after bidding
   readonly bidding: BiddingState;
   readonly bid: { seat: Seat; value: number } | null;
@@ -51,6 +51,7 @@ const err = (reason: string): ApplyResult => ({ ok: false, reason });
 /** Deterministic per-hand rng: seed mixed with hand number. */
 const handRng = (seed: number, handNo: number): Rng => mulberry32(seed * 0x9e3779b1 + handNo);
 
+/** Internal: hand setup/rollover. Exported for game.ts continuation + tests. */
 function dealHand(base: {
   seed: number; handNo: number; dealer: Seat; scores: readonly [number, number];
 }): { state: GameState; events: GameEvent[] } {
@@ -94,7 +95,9 @@ export function newGame(seed: number): GameState {
 }
 
 function dealSecondBatch(s: GameState): GameState {
-  const hands = s.hands.map(h => [...h]) as [Card[], Card[], Card[], Card[]];
+  const hands: [Card[], Card[], Card[], Card[]] = [
+    [...s.hands[0]], [...s.hands[1]], [...s.hands[2]], [...s.hands[3]],
+  ];
   for (let i = 0; i < 16; i++) {
     hands[(((s.dealer + 1) + Math.floor(i / 4)) % 4) as Seat]!.push(s.stock[i]!);
   }
@@ -129,7 +132,8 @@ function handleBidding(s: GameState, a: Action): ApplyResult {
 
 function handleTrumpSelection(s: GameState, a: Action): ApplyResult {
   if (a.type !== 'chooseTrump') return err('invalid_action_for_phase');
-  if (a.seat !== s.bid!.seat) return err('only_bidder_chooses_trump');
+  if (!s.bid) return err('internal_bid_missing');
+  if (a.seat !== s.bid.seat) return err('only_bidder_chooses_trump');
   const trump = initTrump(a.mode, s.hands[a.seat]!);
   const bidderTeam = teamOf(a.seat);
   const doubleQueue = ([0, 1, 2, 3] as Seat[]).filter(x => teamOf(x) !== bidderTeam);
@@ -149,7 +153,8 @@ function handleDoubleWindow(s: GameState, a: Action): ApplyResult {
     return err('invalid_action_for_phase');
   }
   if (s.doubleQueue[0] !== a.seat) return err('not_your_turn');
-  const bidderTeam = teamOf(s.bid!.seat);
+  if (!s.bid) return err('internal_bid_missing');
+  const bidderTeam = teamOf(s.bid.seat);
   if (a.type === 'double') {
     if (teamOf(a.seat) === bidderTeam || s.stake !== 1) return err('cannot_double');
     const queue = ([0, 1, 2, 3] as Seat[]).filter(x => teamOf(x) === bidderTeam);
@@ -194,4 +199,4 @@ function handlePlaying(_s: GameState, _a: Action): ApplyResult {
   return err('not_implemented');
 }
 
-export { dealHand as __dealHand }; // internal: used by Task 9 for next-hand rollover
+export { dealHand };
