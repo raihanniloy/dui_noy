@@ -8,10 +8,10 @@ export const MIN_BID = 16;
 export const MAX_BID = 28;
 
 export interface BiddingState {
-  turn: Seat;
-  highest: { seat: Seat; value: number } | null;
-  passed: readonly [boolean, boolean, boolean, boolean];
-  done: boolean;
+  readonly turn: Seat;
+  readonly highest: { seat: Seat; value: number } | null;
+  readonly passed: readonly [boolean, boolean, boolean, boolean];
+  readonly done: boolean;
 }
 
 export type BidError =
@@ -51,7 +51,13 @@ export function applyPass(s: BiddingState, seat: Seat): BiddingState | BidError 
   if (s.highest === null) return 'must_bid';
   // Current highest bidder cannot pass.
   if (s.highest.seat === seat) return 'holder_cannot_pass';
-  const passed = s.passed.map((p, i) => (i === seat ? true : p)) as unknown as BiddingState['passed'];
+  const p = s.passed;
+  const passed: BiddingState['passed'] = [
+    seat === 0 ? true : p[0],
+    seat === 1 ? true : p[1],
+    seat === 2 ? true : p[2],
+    seat === 3 ? true : p[3],
+  ];
   // Count non-holder passes: auction ends when three other seats have all passed.
   const nonHolderPasses = passed.filter((p, i) => p && i !== s.highest!.seat).length;
   if (nonHolderPasses >= 3) return { ...s, passed, done: true };

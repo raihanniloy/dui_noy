@@ -27,7 +27,8 @@ describe('bidding', () => {
     expect(s.turn).toBe(0);
     s = asState(applyBid(s, 0, 17));
     expect(s.turn).toBe(1);
-    expect(applyPass(s, 1)).not.toBe('holder_cannot_pass'); // seat 1 no longer holder
+    const after = asState(applyPass(s, 1));
+    expect(after.passed[1]).toBe(true);
     expect(s.highest).toEqual({ seat: 0, value: 17 });
   });
   it('ends when three non-holders pass; winner = highest', () => {
@@ -51,5 +52,20 @@ describe('bidding', () => {
   it('exports bounds', () => {
     expect(MIN_BID).toBe(16);
     expect(MAX_BID).toBe(28);
+  });
+  it('bid of exactly MAX_BID (28) is accepted', () => {
+    const s = initBidding(1);
+    const s2 = asState(applyBid(s, 1, 27));
+    const s3 = asState(applyBid(s2, 2, MAX_BID));
+    expect(s3.highest).toEqual({ seat: 2, value: 28 });
+  });
+  it('applyBid and applyPass on done state return bidding_done', () => {
+    let s = asState(applyBid(initBidding(1), 1, 16));
+    s = asState(applyPass(s, 2));
+    s = asState(applyPass(s, 3));
+    s = asState(applyPass(s, 0));
+    expect(s.done).toBe(true);
+    expect(applyBid(s, 1, 17)).toBe('bidding_done');
+    expect(applyPass(s, 2)).toBe('bidding_done');
   });
 });

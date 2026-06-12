@@ -6,7 +6,7 @@
 import type { Card, Suit, TrumpMode } from './types';
 
 export interface TrumpState {
-  readonly mode: TrumpMode;
+  readonly mode: TrumpMode; // kept for event emission (TrumpChosen needs kind) and 7th-card UX
   readonly suit: Suit | null; // null only in joker mode
   readonly revealed: boolean; // joker mode is born "revealed" (nothing to reveal)
   readonly seventhCard: Card | null;
