@@ -7,6 +7,7 @@ export interface Play { readonly seat: Seat; readonly card: Card }
 
 /** trumpSuit null = joker mode or trump treated as inactive. */
 export function trickWinner(plays: readonly Play[], trumpSuit: Suit | null): Seat {
+  if (plays.length === 0) throw new Error('trickWinner: empty trick');
   let best = plays[0]!;
   for (const p of plays.slice(1)) {
     const bTrump = trumpSuit !== null && best.card.suit === trumpSuit;

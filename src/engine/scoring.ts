@@ -8,7 +8,7 @@ export const trickPoints = (cards: readonly Card[]): number =>
 export interface HandInput {
   bid: number;
   bidderTeam: Team;
-  /** Card points per team, last-trick +1 bonus already included (sums to 29). */
+  /** Card points per team, last-trick +1 bonus included. Precondition: sums to 29. */
   cardPointsByTeam: readonly [number, number];
   tricksByTeam: readonly [number, number];
   marriageTeam: Team | null;
