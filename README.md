@@ -10,10 +10,10 @@ Architecture: a pure, headless game engine (reducer + seeded RNG, fully replayab
 |-------|------|-------|
 | Plan 1 | Headless engine — deck, bidding, trump, tricks, scoring, state machine | ✅ Done |
 | Plan 2 | Heuristic bots (easy/hard) + bot-vs-bot simulator | ✅ Done |
-| Plan 3 | Phaser 3 UI (Boot/Menu/Table scenes, GameClient) | ⏳ Not started |
+| Plan 3 | Phaser UI (Boot/Menu/Table scenes, GameClient) | ✅ Done |
 | Plan 4 | Capacitor Android + web packaging | ⏳ Not started |
 
-There is **no playable UI yet**. `src/main.ts` is a placeholder until Plan 3. Today the project is exercised through its test suite. See `docs/superpowers/specs/` and `docs/superpowers/plans/` for the design and implementation plans.
+The game is playable: run `npm run dev` and open the printed URL. `src/main.ts` bootstraps the Phaser app (Boot → Menu → Table). See `docs/superpowers/specs/` and `docs/superpowers/plans/` for the design and implementation plans.
 
 ## Requirements
 
