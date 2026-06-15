@@ -19,7 +19,7 @@ export async function initNative(): Promise<void> {
 
 export function onBackButton(handler: BackHandler): void {
   if (!isNative()) return;
-  void import('@capacitor/app').then(({ App }) => {
-    App.addListener('backButton', () => handler());
-  });
+  void import('@capacitor/app')
+    .then(({ App }) => { App.addListener('backButton', () => handler()); })
+    .catch((e) => console.warn('backButton listener failed', e));
 }
