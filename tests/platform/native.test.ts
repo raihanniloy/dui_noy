@@ -63,7 +63,9 @@ describe('native (device)', () => {
     const handler = vi.fn();
     onBackButton(handler);
     await new Promise(resolve => setTimeout(resolve, 0));
-    const cb = addListener.mock.calls[0][1] as () => void;
+    const call = addListener.mock.calls.find((c) => c[0] === 'backButton');
+    expect(call).toBeDefined();
+    const cb = call![1] as () => void;
     cb();
     expect(handler).toHaveBeenCalledTimes(1);
   });
