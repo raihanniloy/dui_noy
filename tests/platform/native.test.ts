@@ -37,3 +37,34 @@ describe('native (web)', () => {
     expect(addListener).not.toHaveBeenCalled();
   });
 });
+
+describe('native (device)', () => {
+  beforeEach(() => { vi.clearAllMocks(); isNativePlatform.mockReturnValue(true); });
+
+  it('isNative is true on device', () => {
+    expect(isNative()).toBe(true);
+  });
+
+  it('initNative locks portrait, hides status bar and splash', async () => {
+    await initNative();
+    expect(lockOrientation).toHaveBeenCalledWith({ orientation: 'portrait' });
+    expect(hideStatusBar).toHaveBeenCalledTimes(1);
+    expect(hideSplash).toHaveBeenCalledTimes(1);
+  });
+
+  it('onBackButton registers a backButton listener', async () => {
+    onBackButton(() => {});
+    // flush multiple microtask ticks so the dynamic import and .then() both resolve
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(addListener).toHaveBeenCalledWith('backButton', expect.any(Function));
+  });
+
+  it('invoking the registered listener calls the handler', async () => {
+    const handler = vi.fn();
+    onBackButton(handler);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const cb = addListener.mock.calls[0][1] as () => void;
+    cb();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+});
