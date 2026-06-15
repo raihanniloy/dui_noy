@@ -1,17 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { newGame, applyAction, legalActions, playerView, WIN_TARGET } from '../../src/engine/game';
-import type { GameState } from '../../src/engine/game';
+import { newGame, applyAction, legalActions, playerView, currentSeat, WIN_TARGET } from '../../src/engine/game';
 import type { Seat, Suit } from '../../src/engine/types';
 import { mulberry32 } from '../../src/engine/deck';
 import { makeBot, type Difficulty } from '../../src/bots/bot';
 import { emptyMemory, observe, type CardMemory } from '../../src/bots/cardMemory';
-
-function actingSeat(s: GameState): Seat {
-  if (s.phase === 'bidding') return s.bidding.turn;
-  if (s.phase === 'trumpSelection') return s.bid!.seat;
-  if (s.phase === 'doubleWindow') return s.doubleQueue[0]!;
-  return ((s.leader + s.trick.length) % 4) as Seat;
-}
 
 // No @types/node in this project's tsconfig, so reach process via a narrowly-typed
 // globalThis cast (Node/vitest always provides it at runtime) instead of adding a dep.
@@ -36,7 +28,7 @@ describe('bot-vs-bot simulation', () => {
 
       while (s.phase !== 'done') {
         expect(++steps).toBeLessThan(6000);
-        const seat = actingSeat(s);
+        const seat = currentSeat(s);
         const legal = legalActions(s, seat);
         expect(legal.length).toBeGreaterThan(0);
         const action = bots[seat]!.decideAction(playerView(s, seat), legal, mem[seat]!);
