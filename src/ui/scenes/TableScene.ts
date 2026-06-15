@@ -156,7 +156,8 @@ export class TableScene extends Phaser.Scene {
       this.tweens.add({
         targets: img, x: to.x, y: to.y, duration: 200, ease: 'Quad.out',
         onComplete: () => {
-          if (seat !== 0) img.setTexture(cardKey(card)).setDisplaySize(CARD_W, CARD_H);
+          // Guard: a trick-clear (removeAll) can destroy this image before the flip fires.
+          if (seat !== 0 && img.scene) img.setTexture(cardKey(card)).setDisplaySize(CARD_W, CARD_H);
           res();
         },
       });
@@ -165,7 +166,7 @@ export class TableScene extends Phaser.Scene {
 
   private animateTrickWon(winner: Seat): Promise<void> {
     const to = SEAT_POS[winner];
-    const targets = this.trickLayer.list.slice() as Phaser.GameObjects.Image[];
+    const targets = (this.trickLayer.list.slice() as Phaser.GameObjects.Image[]).filter((o) => o.scene);
     playSfx(this, 'win');
     return new Promise<void>((res) => {
       if (targets.length === 0) { res(); return; }
