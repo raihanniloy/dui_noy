@@ -149,19 +149,21 @@ export class TableScene extends Phaser.Scene {
     const canPass = legal.some((a) => a.type === 'pass');
     return new Promise<Action>((resolve) => {
       let idx = 0;
-      const valText = this.add.text(W / 2, H - 160, '', { fontSize: '52px', color: '#fff' }).setOrigin(0.5);
+      // Bidding happens on the 4-card hand at y≈H-150; keep controls above it so they don't overlap.
+      const ROW = H - 360, BTN = H - 280;
+      const valText = this.add.text(W / 2, ROW, '', { fontSize: '52px', color: '#fff' }).setOrigin(0.5);
       this.uiLayer.add(valText);
       const refresh = (): void => { valText.setText(bids.length ? String(bids[idx]!.value) : '—'); };
       const objs: Phaser.GameObjects.GameObject[] = [valText];
       const cleanup = (): void => { objs.forEach((o) => o.destroy()); playSfx(this, 'button'); };
 
       if (bids.length) {
-        objs.push(this.stripButton(W / 2 - 170, H - 160, '−', () => { if (idx > 0) { idx--; refresh(); playSfx(this, 'button'); } }));
-        objs.push(this.stripButton(W / 2 + 170, H - 160, '+', () => { if (idx < bids.length - 1) { idx++; refresh(); playSfx(this, 'button'); } }));
-        objs.push(this.stripButton(W / 2 - 90, H - 70, 'Bid', () => { cleanup(); resolve(bids[idx]!); }));
+        objs.push(this.stripButton(W / 2 - 170, ROW, '−', () => { if (idx > 0) { idx--; refresh(); playSfx(this, 'button'); } }));
+        objs.push(this.stripButton(W / 2 + 170, ROW, '+', () => { if (idx < bids.length - 1) { idx++; refresh(); playSfx(this, 'button'); } }));
+        objs.push(this.stripButton(W / 2 - 90, BTN, 'Bid', () => { cleanup(); resolve(bids[idx]!); }));
       }
       if (canPass) {
-        objs.push(this.stripButton(W / 2 + 90, H - 70, 'Pass', () => { cleanup(); resolve({ type: 'pass', seat: 0 }); }));
+        objs.push(this.stripButton(W / 2 + 90, BTN, 'Pass', () => { cleanup(); resolve({ type: 'pass', seat: 0 }); }));
       }
       refresh();
     });
