@@ -48,6 +48,7 @@ export function isBoss(card: Card, mem: CardMemory): boolean {
   return true;
 }
 
-export function trumpsOut(mem: CardMemory, trumpSuit: Suit): number {
+/** Count of trump cards already played. */
+export function trumpsPlayed(mem: CardMemory, trumpSuit: Suit): number {
   return mem.playedBySuit[trumpSuit];
 }

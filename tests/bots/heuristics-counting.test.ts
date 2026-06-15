@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { scorePlay } from '../../src/bots/heuristics';
 import { emptyMemory, observe } from '../../src/bots/cardMemory';
-import type { Card, Suit, Rank, GameEvent } from '../../src/engine/types';
+import type { Card, Suit, Rank, GameEvent, Seat } from '../../src/engine/types';
 import type { PlayerView } from '../../src/engine/game';
 
 const c = (suit: Suit, rank: Rank): Card => ({ suit, rank });
-const play = (seat: number, card: Card): GameEvent => ({ type: 'CardPlayed', seat: seat as 0, card });
+const play = (seat: number, card: Card): GameEvent => ({ type: 'CardPlayed', seat: seat as Seat, card });
 
 const view = (over: Partial<PlayerView>): PlayerView => ({
   seat: 0, phase: 'playing', hand: [], dealer: 0,

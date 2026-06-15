@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { emptyMemory, observe, isBoss, trumpsOut } from '../../src/bots/cardMemory';
-import type { Card, Suit, Rank, GameEvent } from '../../src/engine/types';
+import { emptyMemory, observe, isBoss, trumpsPlayed } from '../../src/bots/cardMemory';
+import type { Card, Suit, Rank, GameEvent, Seat } from '../../src/engine/types';
 
 const c = (suit: Suit, rank: Rank): Card => ({ suit, rank });
-const played = (seat: number, card: Card): GameEvent => ({ type: 'CardPlayed', seat: seat as 0, card });
+const played = (seat: number, card: Card): GameEvent => ({ type: 'CardPlayed', seat: seat as Seat, card });
 
 describe('cardMemory', () => {
   it('records plays and per-suit counts', () => {
@@ -45,10 +45,10 @@ describe('cardMemory', () => {
     expect(isBoss(c('hearts', '9'), m)).toBe(true);
   });
 
-  it('trumpsOut counts trump cards played', () => {
+  it('trumpsPlayed counts trump cards played', () => {
     let m = emptyMemory();
     m = observe(m, played(0, c('spades', '7')), null);
     m = observe(m, played(1, c('spades', 'K')), 'spades');
-    expect(trumpsOut(m, 'spades')).toBe(2);
+    expect(trumpsPlayed(m, 'spades')).toBe(2);
   });
 });

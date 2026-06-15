@@ -5,7 +5,7 @@ import { MIN_BID, MAX_BID } from '../engine/bidding';
 import type { PlayerView } from '../engine/game';
 import { rankStrength, trickWinner } from '../engine/tricks';
 import { cardPoints } from '../engine/scoring';
-import { isBoss, trumpsOut, type CardMemory } from './cardMemory';
+import { isBoss, trumpsPlayed, type CardMemory } from './cardMemory';
 
 const CONTROL: Partial<Record<Rank, number>> = { J: 4, '9': 3, A: 2, '10': 1 };
 
@@ -86,7 +86,7 @@ export function scorePlay(card: Card, view: PlayerView, mem: CardMemory): number
     s -= rankStrength(card.rank) * 0.3; // win as cheaply as possible
     if (trump !== null && card.suit === trump) {
       // Trumping costs less as trumps deplete — fewer left to conserve.
-      s -= Math.max(0, 2 - 0.5 * trumpsOut(mem, trump));
+      s -= Math.max(0, 2 - 0.5 * trumpsPlayed(mem, trump));
     }
   } else {
     if (partnerWinningNow) s += cardPoints(card); // feed points to partner
