@@ -1,11 +1,11 @@
-import type { Card, Rank, Suit, TrumpMode } from '../engine/types';
+import type { Card, Rank, Seat, Suit, TrumpMode } from '../engine/types';
 import { teamOf } from '../engine/types';
 import { SUITS } from '../engine/deck';
 import { MIN_BID, MAX_BID } from '../engine/bidding';
 import type { PlayerView } from '../engine/game';
 import { rankStrength, trickWinner } from '../engine/tricks';
 import { cardPoints } from '../engine/scoring';
-import { isBoss, type CardMemory } from './cardMemory';
+import { isBoss, trumpsOut, type CardMemory } from './cardMemory';
 
 const CONTROL: Partial<Record<Rank, number>> = { J: 4, '9': 3, A: 2, '10': 1 };
 
@@ -58,7 +58,15 @@ export function scorePlay(card: Card, view: PlayerView, mem: CardMemory): number
   if (ledSuit === null) {
     // Leading.
     let s = 0;
-    if (isBoss(card, mem)) s += 10;
+    if (isBoss(card, mem)) {
+      let bonus = 10;
+      // A known-void opponent can trump our "boss" once trump is live — less safe.
+      if (trump !== null && revealed) {
+        const opponents: Seat[] = [((view.seat + 1) % 4) as Seat, ((view.seat + 3) % 4) as Seat];
+        if (opponents.some(o => mem.voids[o].has(card.suit))) bonus -= 6;
+      }
+      s += bonus;
+    }
     s += rankStrength(card.rank) * 0.1;
     if (trump !== null && revealed && card.suit === trump) s -= 5; // conserve trump
     return s;
@@ -76,7 +84,10 @@ export function scorePlay(card: Card, view: PlayerView, mem: CardMemory): number
   if (weWin) {
     s += 5 + trickPts; // take the trick and its points
     s -= rankStrength(card.rank) * 0.3; // win as cheaply as possible
-    if (trump !== null && card.suit === trump) s -= 2; // mild trump cost
+    if (trump !== null && card.suit === trump) {
+      // Trumping costs less as trumps deplete — fewer left to conserve.
+      s -= Math.max(0, 2 - 0.5 * trumpsOut(mem, trump));
+    }
   } else {
     if (partnerWinningNow) s += cardPoints(card); // feed points to partner
     else s -= cardPoints(card); // deny points to opponents
