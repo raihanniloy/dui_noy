@@ -125,11 +125,121 @@ export class TableScene extends Phaser.Scene {
     this.showMatchOverlay();
   }
 
-  // PLACEHOLDER — replaced in Task 9. Auto-plays so a full match runs unattended.
-  private async awaitHumanAction(): Promise<Action> {
-    await this.delay(250);
+  private awaitHumanAction(): Promise<Action> {
+    const v = this.client.view();
     const legal = this.client.legal();
-    return legal.find((a) => a.type === 'playCard') ?? legal[0]!;
+    if (v.phase === 'bidding') return this.promptBidding(legal);
+    if (v.phase === 'trumpSelection') return this.promptTrump(legal);
+    if (v.phase === 'doubleWindow') return this.promptDouble(legal);
+    return this.promptPlay(legal); // 'playing'
+  }
+
+  /** A button anchored on the bottom action strip (added to uiLayer). */
+  private stripButton(x: number, y: number, label: string, onUp: () => void): Phaser.GameObjects.Text {
+    const t = this.add.text(x, y, label, {
+      fontSize: '40px', color: '#222', backgroundColor: '#ffd34d', padding: { x: 18, y: 8 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    t.on('pointerup', onUp);
+    this.uiLayer.add(t);
+    return t;
+  }
+
+  private promptBidding(legal: Action[]): Promise<Action> {
+    const bids = legal.filter((a): a is Extract<Action, { type: 'bid' }> => a.type === 'bid');
+    const canPass = legal.some((a) => a.type === 'pass');
+    return new Promise<Action>((resolve) => {
+      let idx = 0;
+      const valText = this.add.text(W / 2, H - 160, '', { fontSize: '52px', color: '#fff' }).setOrigin(0.5);
+      this.uiLayer.add(valText);
+      const refresh = (): void => { valText.setText(bids.length ? String(bids[idx]!.value) : '—'); };
+      const objs: Phaser.GameObjects.GameObject[] = [valText];
+      const cleanup = (): void => { objs.forEach((o) => o.destroy()); playSfx(this, 'button'); };
+
+      if (bids.length) {
+        objs.push(this.stripButton(W / 2 - 170, H - 160, '−', () => { if (idx > 0) { idx--; refresh(); playSfx(this, 'button'); } }));
+        objs.push(this.stripButton(W / 2 + 170, H - 160, '+', () => { if (idx < bids.length - 1) { idx++; refresh(); playSfx(this, 'button'); } }));
+        objs.push(this.stripButton(W / 2 - 90, H - 70, 'Bid', () => { cleanup(); resolve(bids[idx]!); }));
+      }
+      if (canPass) {
+        objs.push(this.stripButton(W / 2 + 90, H - 70, 'Pass', () => { cleanup(); resolve({ type: 'pass', seat: 0 }); }));
+      }
+      refresh();
+    });
+  }
+
+  private promptTrump(legal: Action[]): Promise<Action> {
+    const choices = legal.filter((a): a is Extract<Action, { type: 'chooseTrump' }> => a.type === 'chooseTrump');
+    const labelFor = (a: Extract<Action, { type: 'chooseTrump' }>): string =>
+      a.mode.kind === 'suit' ? SUIT_GLYPH[a.mode.suit] : a.mode.kind === 'seventh' ? '7th' : 'Joker';
+    return new Promise<Action>((resolve) => {
+      const objs: Phaser.GameObjects.GameObject[] = [
+        this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.6),
+        this.add.text(W / 2, H / 2 - 180, 'Choose trump', { fontSize: '52px', color: '#fff' }).setOrigin(0.5),
+      ];
+      const pick = (a: Action): void => { objs.forEach((o) => o.destroy()); playSfx(this, 'button'); resolve(a); };
+      choices.forEach((a, i) => {
+        const x = W / 2 + (i - (choices.length - 1) / 2) * 110;
+        const b = this.add.text(x, H / 2, labelFor(a), {
+          fontSize: '52px', color: '#222', backgroundColor: '#ffd34d', padding: { x: 16, y: 12 },
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+        b.on('pointerup', () => pick(a));
+        objs.push(b);
+      });
+    });
+  }
+
+  private promptDouble(legal: Action[]): Promise<Action> {
+    const label: Record<string, string> = { double: 'Double', redouble: 'Redouble', declineDouble: 'No' };
+    return new Promise<Action>((resolve) => {
+      const objs: Phaser.GameObjects.GameObject[] = [
+        this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.6),
+        this.add.text(W / 2, H / 2 - 150, 'Double?', { fontSize: '52px', color: '#fff' }).setOrigin(0.5),
+      ];
+      const pick = (a: Action): void => { objs.forEach((o) => o.destroy()); playSfx(this, 'button'); resolve(a); };
+      legal.forEach((a, i) => {
+        const x = W / 2 + (i - (legal.length - 1) / 2) * 160;
+        const b = this.add.text(x, H / 2, label[a.type] ?? a.type, {
+          fontSize: '44px', color: '#222', backgroundColor: '#ffd34d', padding: { x: 18, y: 10 },
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+        b.on('pointerup', () => pick(a));
+        objs.push(b);
+      });
+    });
+  }
+
+  private promptPlay(legal: Action[]): Promise<Action> {
+    const playable = new Set(
+      legal.filter((a): a is Extract<Action, { type: 'playCard' }> => a.type === 'playCard')
+        .map((a) => cardKey(a.card)),
+    );
+    return new Promise<Action>((resolve) => {
+      const extras: Phaser.GameObjects.GameObject[] = [];
+      const finish = (a: Action): void => { this.clearHandInput(); extras.forEach((o) => o.destroy()); resolve(a); };
+
+      (this.handLayer.list as Phaser.GameObjects.Image[]).forEach((img) => {
+        const card = img.getData('card') as Card;
+        if (playable.has(cardKey(card))) {
+          img.setAlpha(1).setInteractive({ useHandCursor: true });
+          img.on('pointerup', () => { playSfx(this, 'play'); finish({ type: 'playCard', seat: 0, card }); });
+        } else {
+          img.setAlpha(0.45);
+        }
+      });
+
+      const reveal = legal.find((a) => a.type === 'revealTrump');
+      const marriage = legal.find((a) => a.type === 'declareMarriage');
+      let bx = W / 2 - 150;
+      if (reveal) { extras.push(this.stripButton(bx, H - 60, 'Reveal', () => finish(reveal))); bx += 190; }
+      if (marriage) { extras.push(this.stripButton(bx, H - 60, 'Marriage', () => finish(marriage))); }
+    });
+  }
+
+  private clearHandInput(): void {
+    (this.handLayer.list as Phaser.GameObjects.Image[]).forEach((img) => {
+      img.removeAllListeners();
+      img.disableInteractive();
+      img.setAlpha(1);
+    });
   }
 
   // ---- animation ----
