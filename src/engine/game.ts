@@ -199,6 +199,14 @@ function actingSeatPlaying(s: GameState): Seat {
   return ((s.leader + s.trick.length) % 4) as Seat;
 }
 
+/** Seat whose turn it is. Caller must guard `phase !== 'done'` (done has no actor). */
+export function currentSeat(s: GameState): Seat {
+  if (s.phase === 'bidding') return s.bidding.turn;
+  if (s.phase === 'trumpSelection') return s.bid!.seat;
+  if (s.phase === 'doubleWindow') return s.doubleQueue[0]!;
+  return actingSeatPlaying(s); // 'playing'
+}
+
 function handlePlaying(s: GameState, a: Action): ApplyResult {
   // Guard internal invariants once (decision: playing requires trump + bid set).
   if (!s.trump || !s.bid) return err('internal_state_missing');
