@@ -9,16 +9,26 @@
     "test": "vitest",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "check:android": "node scripts/check-android-env.mjs",
+    "build:android": "npm run check:android && npm run build && npx cap sync android"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/screen-orientation": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
     "phaser": "^4.1.0"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.4.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.16",
     "vitest": "^4.1.8"
