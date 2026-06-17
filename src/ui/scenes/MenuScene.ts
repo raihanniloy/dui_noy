@@ -8,6 +8,11 @@ export class MenuScene extends Phaser.Scene {
 
   constructor() { super('Menu'); }
 
+  // Hardware back on the menu: exit the app (native only).
+  handleBack(): void {
+    void import('@capacitor/app').then(({ App }) => App.exitApp());
+  }
+
   create(): void {
     this.add.text(360, 300, '29', { fontSize: '180px', color: '#ffd34d', fontStyle: 'bold' }).setOrigin(0.5);
     this.add.text(360, 500, 'Opponents', { fontSize: '40px', color: '#eee' }).setOrigin(0.5);

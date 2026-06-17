@@ -42,6 +42,25 @@ The bot-vs-bot simulator runs 200 full games by default. Raise the count with `S
 SIM_GAMES=1000 npx vitest run tests/engine/simulate-bots.test.ts
 ```
 
+## Android build (debug APK)
+
+One-time setup:
+- Install a JDK 17+ and export `JAVA_HOME`.
+- Install the Android SDK (Android Studio or command-line tools) and export
+  `ANDROID_HOME` (or `ANDROID_SDK_ROOT`); accept SDK licenses with `sdkmanager --licenses`.
+- Verify: `npm run check:android` (prints "Android environment OK").
+
+Build and run:
+```bash
+npm run build:android                       # check env, build web, sync into android/
+cd android && ./gradlew assembleDebug       # -> app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+The app locks to portrait, runs fullscreen, and maps the hardware back button
+(in-game → menu, menu → exit). Launcher icon and splash are generated from
+`resources/icon.png` / `resources/splash.png` via `npx capacitor-assets generate --android`.
+
 ## Project layout
 
 ```

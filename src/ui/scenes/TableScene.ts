@@ -36,6 +36,11 @@ export class TableScene extends Phaser.Scene {
 
   constructor() { super('Table'); }
 
+  // Hardware back during a game: abandon and return to the menu.
+  handleBack(): void {
+    this.scene.start('Menu');
+  }
+
   create(data: { difficulty: Difficulty; seed: number }): void {
     this.add.rectangle(W / 2, H / 2, W, H, 0x0b3d2e); // felt
     this.client = new GameClient(data.seed, data.difficulty);
