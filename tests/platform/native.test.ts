@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const isNativePlatform = vi.fn(() => false);
 vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform: () => isNativePlatform() } }));
 
-const lockOrientation = vi.fn(async () => {});
+const lockOrientation = vi.fn(async (_o?: unknown) => {});
 vi.mock('@capacitor/screen-orientation', () => ({ ScreenOrientation: { lock: (o: unknown) => lockOrientation(o) } }));
 
 const hideStatusBar = vi.fn(async () => {});
@@ -13,7 +13,7 @@ vi.mock('@capacitor/status-bar', () => ({ StatusBar: { hide: () => hideStatusBar
 const hideSplash = vi.fn(async () => {});
 vi.mock('@capacitor/splash-screen', () => ({ SplashScreen: { hide: () => hideSplash() } }));
 
-const addListener = vi.fn(async () => ({ remove: vi.fn() }));
+const addListener = vi.fn(async (_e?: string, _cb?: unknown) => ({ remove: vi.fn() }));
 vi.mock('@capacitor/app', () => ({ App: { addListener: (e: string, cb: unknown) => addListener(e, cb) } }));
 
 import { isNative, initNative, onBackButton } from '../../src/platform/native';
