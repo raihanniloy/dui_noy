@@ -1,6 +1,14 @@
 node_modules/
 dist/
 .vite/
-android/
+
+# Android: commit the native project, ignore generated build output.
+# (android/.gitignore handles build artifacts, .gradle, local.properties, etc.)
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/app/release/
+android/capacitor-cordova-android-plugins/
 
 .superpowers/
