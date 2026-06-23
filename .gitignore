@@ -12,3 +12,8 @@ android/app/release/
 android/capacitor-cordova-android-plugins/
 
 .superpowers/
+
+# Plan 5 verification artifacts
+.playwright-mcp/
+0*-*.png
+07*-*.png

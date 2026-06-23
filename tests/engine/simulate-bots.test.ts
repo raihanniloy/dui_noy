@@ -51,6 +51,8 @@ describe('bot-vs-bot simulation', () => {
             if (ev.success) handsBidMet++;
             expect(trickPts).toBe(29); // 28 card points + last-trick bonus
             expect(tricks).toBe(8);
+            expect(ev.cardPointsByTeam[0] + ev.cardPointsByTeam[1]).toBe(29);
+            expect(ev.tricksByTeam[0] + ev.tricksByTeam[1]).toBe(8);
             trickPts = 0;
             tricks = 0;
           }

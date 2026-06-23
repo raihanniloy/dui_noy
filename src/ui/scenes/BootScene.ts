@@ -4,6 +4,7 @@ import { cardsMedium, sounds } from '../../../assets.js';
 import { makeDeck } from '../../engine/deck';
 import { cardKey } from '../cardKey';
 import { soundKey, SFX_KEYS } from '../sound';
+import { bootReady } from '../dom/tableBridge';
 
 const SUIT_SYMBOLS = ['card_clubs_suit', 'card_diamonds_suit', 'card_hearts_suit', 'card_spades_suit'];
 
@@ -26,5 +27,5 @@ export class BootScene extends Phaser.Scene {
     }
   }
 
-  create(): void { this.scene.start('Menu'); }
+  create(): void { bootReady(); }
 }
