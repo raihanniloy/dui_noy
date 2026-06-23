@@ -25,7 +25,6 @@ export class TableScene extends Phaser.Scene implements TableView {
   private handLayer!: Phaser.GameObjects.Container;
   private uiLayer!: Phaser.GameObjects.Container;
   private glows!: Record<Seat, Phaser.GameObjects.Arc>;
-  private lastView: PlayerView | null = null;
 
   constructor() { super('Table'); }
 
@@ -57,7 +56,6 @@ export class TableScene extends Phaser.Scene implements TableView {
   }
 
   render(view: PlayerView, activeSeat: Seat | -1): void {
-    this.lastView = view;
     ([0, 1, 2, 3] as Seat[]).forEach((s) =>
       this.glows[s].setStrokeStyle(5, 0x2997ff, s === activeSeat ? 1 : 0));
     this.renderHand(view);
