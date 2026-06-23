@@ -11,9 +11,9 @@ Architecture: a pure, headless game engine (reducer + seeded RNG, fully replayab
 | Plan 1 | Headless engine — deck, bidding, trump, tricks, scoring, state machine | ✅ Done |
 | Plan 2 | Heuristic bots (easy/hard) + bot-vs-bot simulator | ✅ Done |
 | Plan 3 | Phaser UI (Boot/Menu/Table scenes, GameClient) | ✅ Done |
-| Plan 4 | Capacitor Android + web packaging | ⏳ Not started |
+| Plan 4 | Capacitor Android + web packaging | ✅ Done |
 
-The game is playable: run `npm run dev` and open the printed URL. `src/main.ts` bootstraps the Phaser app (Boot → Menu → Table). See `docs/superpowers/specs/` and `docs/superpowers/plans/` for the design and implementation plans.
+The game is fully playable on web and Android. Run `npm run dev` and open the printed URL. `src/main.ts` bootstraps the Phaser app (Boot → Menu → Table). See `docs/superpowers/specs/` and `docs/superpowers/plans/` for the design and implementation plans.
 
 ## Requirements
 
@@ -29,9 +29,9 @@ npm install
 
 ```bash
 npm test              # run the test suite in watch mode (vitest)
-npm run test:run      # run the full suite once (82 tests)
+npm run test:run      # run the full suite once (99 tests)
 npm run build         # type-check (tsc --noEmit) then production build (vite build)
-npm run dev           # start the Vite dev server (placeholder page until Plan 3)
+npm run dev           # start the Vite dev server (Phaser app: Boot → Menu → Table)
 ```
 
 ### Heavy bot simulation
