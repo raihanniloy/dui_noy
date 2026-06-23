@@ -5,6 +5,7 @@ export default defineConfig({
   base: './',
   test: {
     include: ['tests/**/*.test.ts'],
-    environmentMatchGlobs: [['tests/ui/**', 'jsdom']],
+    // vitest 4.x dropped environmentMatchGlobs. Each tests/ui/ file must carry
+    // a `// @vitest-environment jsdom` docblock on line 1 to get a DOM.
   },
 });
