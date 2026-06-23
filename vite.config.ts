@@ -3,5 +3,8 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   base: './',
-  test: { include: ['tests/**/*.test.ts'] },
+  test: {
+    include: ['tests/**/*.test.ts'],
+    environmentMatchGlobs: [['tests/ui/**', 'jsdom']],
+  },
 });
