@@ -307,6 +307,7 @@ function handlePlaying(s: GameState, a: Action): ApplyResult {
   events.push({
     type: 'HandScored', bidderTeam, target: outcome.target,
     points: cardPointsByTeam[bidderTeam], success: outcome.success, delta: outcome.delta,
+    cardPointsByTeam, tricksByTeam,
   });
 
   if (scores.some(v => Math.abs(v) >= WIN_TARGET)) {

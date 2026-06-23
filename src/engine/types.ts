@@ -36,5 +36,5 @@ export type GameEvent =
   | { type: 'MarriageDeclared'; seat: Seat; team: Team }
   | { type: 'CardPlayed'; seat: Seat; card: Card }
   | { type: 'TrickWon'; seat: Seat; points: number }
-  | { type: 'HandScored'; bidderTeam: Team; target: number; points: number; success: boolean; delta: number }
+  | { type: 'HandScored'; bidderTeam: Team; target: number; points: number; success: boolean; delta: number; cardPointsByTeam: readonly [number, number]; tricksByTeam: readonly [number, number] }
   | { type: 'GameOver'; scores: readonly [number, number] };

@@ -90,8 +90,8 @@ export class UIController {
     const usIsBidder = ev.bidderTeam === 0;
     const data: SummaryData = {
       success: ev.success, delta: usIsBidder ? ev.delta : -ev.delta, bidValue: ev.target,
-      usPoints: v.cardPointsByTeam[0], themPoints: v.cardPointsByTeam[1],
-      usTricks: v.tricksByTeam[0], themTricks: v.tricksByTeam[1],
+      usPoints: ev.cardPointsByTeam[0], themPoints: ev.cardPointsByTeam[1],
+      usTricks: ev.tricksByTeam[0], themTricks: ev.tricksByTeam[1],
       scoreUs: v.scores[0], scoreThem: v.scores[1], matchOver: this.client.isOver(),
     };
     await new Promise<void>((resolve) => {
