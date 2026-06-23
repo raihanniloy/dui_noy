@@ -12,8 +12,9 @@ Architecture: a pure, headless game engine (reducer + seeded RNG, fully replayab
 | Plan 2 | Heuristic bots (easy/hard) + bot-vs-bot simulator | ✅ Done |
 | Plan 3 | Phaser UI (Boot/Menu/Table scenes, GameClient) | ✅ Done |
 | Plan 4 | Capacitor Android + web packaging | ✅ Done |
+| Plan 5 | DOM UI flow (Cupertino redesign) — 8 core screens | ✅ Done |
 
-The game is fully playable on web and Android. Run `npm run dev` and open the printed URL. `src/main.ts` bootstraps the Phaser app (Boot → Menu → Table). See `docs/superpowers/specs/` and `docs/superpowers/plans/` for the design and implementation plans.
+The game is fully playable on web and Android. Run `npm run dev` and open the printed URL. `src/main.ts` boots a Phaser **table** scene (the live card play) beneath a DOM **overlay layer** (`src/ui/dom/`) that renders the Cupertino-styled menus and dialogs: splash → menu → setup → bidding → trump → table → round summary → game over. `UIController` (`src/ui/dom/UIController.ts`) owns the turn loop and bridges the engine, the DOM screens, and the Phaser table. See `docs/superpowers/specs/` and `docs/superpowers/plans/` for the design and implementation plans.
 
 ## Requirements
 
@@ -29,7 +30,7 @@ npm install
 
 ```bash
 npm test              # run the test suite in watch mode (vitest)
-npm run test:run      # run the full suite once (99 tests)
+npm run test:run      # run the full suite once (106 tests)
 npm run build         # type-check (tsc --noEmit) then production build (vite build)
 npm run dev           # start the Vite dev server (Phaser app: Boot → Menu → Table)
 ```
@@ -77,10 +78,19 @@ src/
     cardMemory.ts  # public-info tracking (played cards, voids, trumps-played)
     heuristics.ts  # bid / trump / double / card-play scoring
     bot.ts         # makeBot(difficulty, rng): decideAction
-  main.ts        # UI entry point (Phaser bootstraps here in Plan 3)
+  ui/
+    GameClient.ts  # headless turn driver around engine + bots
+    scenes/        # Phaser: BootScene (preload) + TableScene (card table render + play input)
+    dom/           # Cupertino DOM overlay UI
+      UIController.ts  # turn loop; bridges GameClient <-> DOM screens <-> Phaser table
+      Screen.ts        # show/hide router over #ui-root
+      screens/         # splash, menu, setup, bid, trump, double, summary, game over
+      styles/          # tokens.css + components.css (design tokens)
+  main.ts        # entry point: boots Phaser table under the DOM overlay layer
 tests/
   engine/        # engine unit tests + random-playout & bot-vs-bot simulators
   bots/          # bot unit tests
+  ui/            # DOM screen/router + UIController unit tests
 docs/superpowers/
   specs/         # design docs
   plans/         # task-by-task implementation plans
