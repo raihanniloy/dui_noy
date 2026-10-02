@@ -12,6 +12,7 @@ Weekly hours: not set yet
 | Topic | Track | Level | Score (0-5) | Last studied | Next review | Weak spots |
 |-------|-------|-------|-------------|--------------|-------------|------------|
 | Semaphores | OS / Concurrency | L3 | 3 | 2026-10-02 | 2026-10-09 | needed hints for signaling pattern (init 0); imprecise wording (mutex vs slot); weak 30-sec explanation (omitted counter, ops, ownership) |
+| Distributed locking (shared file across services) | OS / Distributed systems | L3 | 3 | 2026-10-02 | 2026-10-09 | gave answers without stating the reason; missed availability/SPOF and idempotency; needed hint for lease expiry vs fencing token |
 
 ## Interview log
 | Date | Type | Topic | Score | Key feedback |
@@ -20,6 +21,7 @@ Weekly hours: not set yet
 
 ## Next up
 - Review semaphores on 2026-10-09
+- Leader election, idempotency, at-least-once delivery
 - Mutex vs condition variables / monitors
 - Deadlock (Coffman conditions, lock ordering)
 - Classic problems: readers-writers, dining philosophers
